@@ -20,7 +20,6 @@ namespace Blazor.CssBundler.Interactive
             for (int i = 0; i < selectionItems.Length; i++)
             {
                 SettingsSelectionItem item = selectionItems[i];
-                string itemValue = selectionItems[i].Type;
                 if (selectionItems[i].Selected)
                 {
                     Console.ForegroundColor = ConsoleColor.Black;

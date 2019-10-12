@@ -13,19 +13,6 @@ namespace Blazor.CssBundler
 {
     class Program
     {
-        public static int RunChangeSettingsAndReturnExitCode(ChangeSettingsOptions options)
-        {
-            return 0;
-        }
-        public static int RunWatchAndReturnExitCode(WatchOptions options)
-        {
-            return 0;
-        }
-        public static int RunCloneAndReturnExitCode(ChangeSettingsOptions options)
-        {
-            return 0;
-        }
-
         static async Task Main(string[] args)
         {            
             if (args.Length < 1)
@@ -36,8 +23,8 @@ namespace Blazor.CssBundler
             {
                 Parser.Default.ParseArguments<WatchOptions, ChangeSettingsOptions>(args)
                     .MapResult(
-                    (ChangeSettingsOptions opts) => RunChangeSettingsAndReturnExitCode(opts),
-                    (WatchOptions opts) => RunWatchAndReturnExitCode(opts),
+                    //(ChangeSettingsOptions opts) => RunChangeSettingsAndReturnExitCode(opts),
+                    //(WatchOptions opts) => RunWatchAndReturnExitCode(opts),
                     errs => 1);
             }
             catch (InvalidSettingsException)

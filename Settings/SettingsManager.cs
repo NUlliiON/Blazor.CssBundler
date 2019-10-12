@@ -16,7 +16,6 @@ namespace Blazor.CssBundler.Settings
         /// </summary>
         /// <param name="settings"></param>
         /// <param name="name">settings name</param>
-        /// <param name="type">settings type</param>
         /// <returns></returns>
         public static async Task SaveAsync(object settings, string name)
         {
@@ -63,10 +62,9 @@ namespace Blazor.CssBundler.Settings
         }
 
         /// <summary>
-        /// Check settings with name and type already exists
+        /// Checking settings with specified name
         /// </summary>
         /// <param name="name">settings name</param>
-        /// <param name="type">settings type</param>
         /// <returns></returns>
         public static bool Has(string name) => File.Exists(Path.Combine("settings", MakeSettingsFileName(name)));
 
@@ -74,16 +72,14 @@ namespace Blazor.CssBundler.Settings
         /// Get all settings
         /// </summary>
         /// <returns></returns>
-        public static IEnumerable<(string name, string type, DateTime lastChangingTime)> AllSettingsInfo()
+        public static async IAsyncEnumerable<(string name, SettingsType type, DateTime lastChangingTime)> GetAllSettingsInfo()
         {
             foreach (FileInfo file in new DirectoryInfo("settings").GetFiles("*.settings.json", SearchOption.TopDirectoryOnly))
             {
-                string[] fullNameParts = file.Name.Split('.');
-                string name = fullNameParts?[0];
-                string type = fullNameParts?[1];
-                if (name != null && type != null)
+                BaseSettings settings = await ReadAsync<BaseSettings>(file.FullName);
+                if (settings?.Name != null)
                 {
-                    yield return (name, type, file.LastWriteTime);
+                    yield return (settings.Name, settings.Type, file.LastWriteTime);
                 }
             }
         }
@@ -93,7 +89,7 @@ namespace Blazor.CssBundler.Settings
         /// </summary>
         /// <param name="settingsTypeEnum">settings type</param>
         ///// <returns></returns>
-        public static async IAsyncEnumerable<(string name, SettingsType type, DateTime lastChaningTime)> SettingsInfo(SettingsType settingsTypeEnum)
+        public static async IAsyncEnumerable<(string name, SettingsType type, DateTime lastChaningTime)> GetSettingsInfo(SettingsType settingsTypeEnum)
         {
             foreach (FileInfo file in new DirectoryInfo("settings").GetFiles($"*.settings.json", SearchOption.TopDirectoryOnly))
             {

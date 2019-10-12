@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Blazor.CssBundler.Interactive
 {
-    interface ISettingsChanger<T> where T: BaseSettings
+    interface ISettingsChanger<T> where T : BaseSettings
     {
         T Map(PropertySelectionItem[] propertyItems);
     }

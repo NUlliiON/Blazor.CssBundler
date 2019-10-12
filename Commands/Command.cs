@@ -1,6 +1,6 @@
 ﻿using Blazor.CssBundler.Bundle.App;
 using Blazor.CssBundler.Bundle.Component;
-using Blazor.CssBundler.Commands.Parser;
+using Blazor.CssBundler.Commands.Options;
 using Blazor.CssBundler.Exceptions;
 using Blazor.CssBundler.Interactive;
 using Blazor.CssBundler.Logging;
@@ -23,87 +23,32 @@ namespace Blazor.CssBundler.Commands
             _logger = logger;
         }
 
-        /// <summary>
-        /// Checking array args contains only possible arguments defined in command
-        /// </summary>
-        /// <param name="args"></param>
-        /// <param name="cmd"></param>
-        /// <returns></returns>
-        public bool OnlyPossibleArguments(Argument[] args, ICommand cmd)
-        {
-            int argsCount = args.Length;
-            if (args.Select(x => x.Name).Intersect(cmd.PossibleArguments).Count() == argsCount)
-            {
-                return true;
-            }
-            return false;
-        }
-
-        public async Task ChangeSettings()
+        public async Task ChangeSettings(ChangeSettingsOptions changeOptions)
         {
             Console.WriteLine("Select settings ");
-            var settingsList = SettingsManager.AllSettingsInfo().ToArray();
-            var selection = new VerticalSettingsSelector(settingsList.Select(x => new SettingsSelectionItem(x.name, x.type)).ToArray());
-            selection.GetUserSelection();
-            SettingsSelectionItem item = selection.GetUserSelection();
-            if (item.Name == "Application")
+            if (changeOptions.SettingsName == null)
             {
-                var settings = await SettingsManager.ReadAsync<ApplicationSettings>(item.Name);
-                var settingsChanger = new ApplicationSettingsChanger();
-                settingsChanger.Change(settings);
+                var settingsList = await SettingsManager.GetAllSettingsInfo().ToArrayAsync();
+                var selection = new VerticalSettingsSelector(settingsList.Select(x => new SettingsSelectionItem(x.name, x.type)).ToArray());
+                SettingsSelectionItem item = selection.GetUserSelection();
+
+                if (item.Type == SettingsType.Application)
+                {
+                    var settings = await SettingsManager.ReadAsync<ApplicationSettings>(item.Name);
+                    var settingsChanger = new ApplicationSettingsChanger();
+                    settingsChanger.Change(settings);
+                }
+                else if (item.Type == SettingsType.Component)
+                {
+                    var settings = await SettingsManager.ReadAsync<ComponentSettings>(item.Name);
+                    var settingsChanger = new ComponentSettingsChanger();
+                }
             }
-            else if (item.Name == "Component")
-            {
-                var settings = await SettingsManager.ReadAsync<ComponentSettings>(item.Name);
-                var settingsChanger = new ComponentSettingsChanger();
-            }
-
-
-            //Console.WriteLine("Select settings -> ");
-            //Console.Write("Application");
-            //_projSettings = new AppSettings();
-
-            //bool validSettings = false;
-            //while (!validSettings)
-            //{
-            //    Console.Write("Path to project directory: ");
-            //    _projSettings.ProjectDirectory = Console.ReadLine();
-
-            //    Console.Write("Path to global css styles file: ");
-            //    _projSettings.GlobalStylesPath = Console.ReadLine();
-
-            //    Console.Write("Path to the directory for the Buildd file: ");
-            //    _projSettings.OutputCssDirectory = Console.ReadLine();
-
-            //    var results = SettingsValidator.Validate(_projSettings);
-            //    if (results.Count == 0)
-            //    {
-            //        validSettings = true;
-            //    }
-            //    else
-            //    {
-            //        foreach (var error in results)
-            //        {
-            //            ConsoleExtension.WriteError(error.ErrorMessage);
-            //        }
-            //        Console.WriteLine();
-            //    }
-            //}
-            //await SettingsManager.SaveAsync(_projSettings);
-            //Console.WriteLine("File successfully saved");
         }
 
-        //static async Task RunBuild(/*ManualCssBundler builder*/)
-        //{
-        //    throw new NotImplementedException();
-        //    //ConsoleExtension.WriteInfo("Building...");
-
-        //    //_ = Console.ReadLine();
-        //}
-
-        public void SettingsList()
+        public async Task SettingsList()
         {
-            var settingsList = SettingsManager.AllSettingsInfo().ToList();
+            var settingsList = await SettingsManager.GetAllSettingsInfo().ToListAsync();
             for (int i = 0; i < settingsList.Count; i++)
             {
                 _logger.Print("(" + (i + 1) + ") " + settingsList[i].name + " - " + settingsList[i].type);
@@ -133,9 +78,9 @@ namespace Blazor.CssBundler.Commands
             _logger.Print($"Settings with name \"{name}\" and type \"{type}\" </checkmark/> created </grinning_face/>");
         }
 
-        public void AppWatch()
+        public async Task AppWatch()
         {
-            var settingsList = SettingsManager.AllSettingsInfo().ToArray();
+            var settingsList = await SettingsManager.GetAllSettingsInfo().ToArrayAsync();
             var selection = new VerticalSettingsSelector(settingsList.Select(x => new SettingsSelectionItem(x.name, x.type)).ToArray());
             SettingsSelectionItem selectedItem = selection.GetUserSelection();
         }
