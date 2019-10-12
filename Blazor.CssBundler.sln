@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29230.61
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blazor.CssBundler", "Blazor.CssBundler.csproj", "{AD82FBCA-8654-464B-87FD-820B6B40C82A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blazor.CssBundler.Tests", "..\Blazor.CssBundler.Tests\Blazor.CssBundler.Tests.csproj", "{0803504E-FA12-4EF1-9982-1B9B0131E808}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AD82FBCA-8654-464B-87FD-820B6B40C82A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD82FBCA-8654-464B-87FD-820B6B40C82A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD82FBCA-8654-464B-87FD-820B6B40C82A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD82FBCA-8654-464B-87FD-820B6B40C82A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0803504E-FA12-4EF1-9982-1B9B0131E808}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0803504E-FA12-4EF1-9982-1B9B0131E808}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0803504E-FA12-4EF1-9982-1B9B0131E808}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0803504E-FA12-4EF1-9982-1B9B0131E808}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {19B9FCB6-E8E6-4425-93FA-78D977EBF754}
+	EndGlobalSection
+EndGlobal
