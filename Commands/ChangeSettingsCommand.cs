@@ -1,9 +1,10 @@
 ﻿using Blazor.CssBundler.Commands.Options;
+using Blazor.CssBundler.Interactive;
 using Blazor.CssBundler.Logging;
+using Blazor.CssBundler.Models.Settings;
 using Blazor.CssBundler.Settings;
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Blazor.CssBundler.Commands
@@ -15,7 +16,7 @@ namespace Blazor.CssBundler.Commands
             throw new NotImplementedException();
         }
 
-        public override Task ExecuteAsync(ILogger logger, ChangeSettingsOptions options)
+        public override async Task ExecuteAsync(ILogger logger, ChangeSettingsOptions options)
         {
             Console.WriteLine("Select settings ");
             if (options.SettingsName == null)
