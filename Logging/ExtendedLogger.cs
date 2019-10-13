@@ -10,6 +10,8 @@ namespace Blazor.CssBundler.Logging
     /// </summary>
     class ExtendedLogger : ILogger
     {
+
+
         private EmojiManager _emojiManager;
 
         public ExtendedLogger()
@@ -21,7 +23,7 @@ namespace Blazor.CssBundler.Logging
         
         public void Print(string text)
         {
-            text = _emojiManager.TextWithEmoticons(text);
+            text = _emojiManager.GetTextWithEmoticons(text);
             Console.WriteLine(text);
         }
 
@@ -29,19 +31,19 @@ namespace Blazor.CssBundler.Logging
 
         public void PrintSuccess(string text)
         {
-            text = _emojiManager.TextWithEmoticons(text);
+            text = _emojiManager.GetTextWithEmoticons(text);
             Console.WriteLine(_emojiManager.GetLoadedEmoji("checkmark") + " " + text);
         }
 
         public void PrintError(string text)
         {
-            text = _emojiManager.TextWithEmoticons(text);
+            text = _emojiManager.GetTextWithEmoticons(text);
             Console.WriteLine(_emojiManager.GetLoadedEmoji("crossmark") + " " + text);
         }
 
         public void PrintWarn(string text)
         {
-            text = _emojiManager.TextWithEmoticons(text);
+            text = _emojiManager.GetTextWithEmoticons(text);
             Console.WriteLine(_emojiManager.GetLoadedEmoji("warn") + " " + text);
         }
     }
