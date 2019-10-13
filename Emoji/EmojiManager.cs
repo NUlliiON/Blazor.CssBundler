@@ -39,8 +39,8 @@ namespace Blazor.CssBundler.Emoji
         /// Get emoticons from text
         /// </summary>
         /// <param name="text"></param>
-        /// <returns></returns>
-        public List<string> GetEmoticons(string text)
+        /// <returns>emoticons</returns>
+        public List<string> ParseEmoticons(string text)
         {
             List<string> uniqueEmoticonsList = new List<string>();
 
@@ -60,10 +60,15 @@ namespace Blazor.CssBundler.Emoji
             return uniqueEmoticonsList;
         }
 
-        public string GetLoadedEmoji(string emojiName)
+        /// <summary>
+        /// Get emoji
+        /// </summary>
+        /// <param name="name">emoji name</param>
+        /// <returns></returns>
+        public string GetEmoji(string name)
         {
-            if (_emoticonsDict.ContainsKey(emojiName))
-                return _emoticonsDict[emojiName];
+            if (_emoticonsDict.ContainsKey(name))
+                return _emoticonsDict[name];
             return null;
         }
 
@@ -88,7 +93,7 @@ namespace Blazor.CssBundler.Emoji
         /// <returns></returns>
         public string GetTextWithEmoticons(string text)
         {
-            List<string> emoticons = GetEmoticons(text);
+            List<string> emoticons = ParseEmoticons(text);
             return ReplaceToEmoticons(text, emoticons);
         }
     }
