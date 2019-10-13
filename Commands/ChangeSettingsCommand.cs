@@ -1,5 +1,6 @@
 ﻿using Blazor.CssBundler.Commands.Options;
 using Blazor.CssBundler.Logging;
+using Blazor.CssBundler.Settings;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -16,7 +17,25 @@ namespace Blazor.CssBundler.Commands
 
         public override Task ExecuteAsync(ILogger logger, ChangeSettingsOptions options)
         {
-            throw new NotImplementedException();
+            Console.WriteLine("Select settings ");
+            if (options.SettingsName == null)
+            {
+                var settingsList = await SettingsManager.GetAboutAllSettings().ToArrayAsync();
+                var selection = new VerticalSettingsSelector(settingsList.Select(x => new SettingsSelectionItem(x.name, x.type)).ToArray());
+                SettingsSelectionItem item = selection.GetUserSelection();
+
+                if (item.Type == SettingsType.Application)
+                {
+                    var settings = await SettingsManager.ReadAsync<ApplicationSettings>(item.Name);
+                    var settingsChanger = new ApplicationSettingsChanger();
+                    settingsChanger.Change(settings);
+                }
+                else if (item.Type == SettingsType.Component)
+                {
+                    var settings = await SettingsManager.ReadAsync<ComponentSettings>(item.Name);
+                    var settingsChanger = new ComponentSettingsChanger();
+                }
+            }
         }
     }
 }

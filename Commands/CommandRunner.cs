@@ -57,7 +57,7 @@ namespace Blazor.CssBundler.Commands
             Console.WriteLine("Select settings ");
             if (changeOptions.SettingsName == null)
             {
-                var settingsList = await SettingsManager.GetAllSettingsInfo().ToArrayAsync();
+                var settingsList = await SettingsManager.GetAboutAllSettings().ToArrayAsync();
                 var selection = new VerticalSettingsSelector(settingsList.Select(x => new SettingsSelectionItem(x.name, x.type)).ToArray());
                 SettingsSelectionItem item = selection.GetUserSelection();
 
@@ -77,7 +77,7 @@ namespace Blazor.CssBundler.Commands
 
         public async Task SettingsList()
         {
-            var settingsList = await SettingsManager.GetAllSettingsInfo().ToListAsync();
+            var settingsList = await SettingsManager.GetAboutAllSettings().ToListAsync();
             for (int i = 0; i < settingsList.Count; i++)
             {
                 _logger.Print("(" + (i + 1) + ") " + settingsList[i].name + " - " + settingsList[i].type);
@@ -109,7 +109,7 @@ namespace Blazor.CssBundler.Commands
 
         public async Task AppWatch()
         {
-            var settingsList = await SettingsManager.GetAllSettingsInfo().ToArrayAsync();
+            var settingsList = await SettingsManager.GetAboutAllSettings().ToArrayAsync();
             var selection = new VerticalSettingsSelector(settingsList.Select(x => new SettingsSelectionItem(x.name, x.type)).ToArray());
             SettingsSelectionItem selectedItem = selection.GetUserSelection();
         }

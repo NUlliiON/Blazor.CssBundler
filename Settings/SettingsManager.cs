@@ -72,7 +72,7 @@ namespace Blazor.CssBundler.Settings
         /// Get all settings
         /// </summary>
         /// <returns></returns>
-        public static async IAsyncEnumerable<(string name, SettingsType type, DateTime lastChangingTime)> GetAllSettingsInfo()
+        public static async IAsyncEnumerable<(string name, SettingsType type, DateTime lastChangingTime)> GetAboutAllSettings()
         {
             foreach (FileInfo file in new DirectoryInfo("settings").GetFiles("*.settings.json", SearchOption.TopDirectoryOnly))
             {
@@ -89,7 +89,7 @@ namespace Blazor.CssBundler.Settings
         /// </summary>
         /// <param name="settingsTypeEnum">settings type</param>
         ///// <returns></returns>
-        public static async IAsyncEnumerable<(string name, SettingsType type, DateTime lastChaningTime)> GetSettingsInfo(SettingsType settingsTypeEnum)
+        public static async IAsyncEnumerable<(string name, SettingsType type, DateTime lastChaningTime)> GetAboutSettings(SettingsType settingsTypeEnum)
         {
             foreach (FileInfo file in new DirectoryInfo("settings").GetFiles($"*.settings.json", SearchOption.TopDirectoryOnly))
             {
