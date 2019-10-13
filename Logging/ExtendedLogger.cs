@@ -10,15 +10,14 @@ namespace Blazor.CssBundler.Logging
     /// </summary>
     class ExtendedLogger : ILogger
     {
-
-
         private EmojiManager _emojiManager;
+        private readonly string _emoticonsPath = "emoticons.json";
 
         public ExtendedLogger()
         {
             Console.OutputEncoding = Encoding.UTF8;
             _emojiManager = new EmojiManager();
-            _emojiManager.LoadEmoticons("emoticons.json"); // TODO: read path from settings
+            _emojiManager.LoadEmoticons(_emoticonsPath);
         }
         
         public void Print(string text)
@@ -27,24 +26,22 @@ namespace Blazor.CssBundler.Logging
             Console.WriteLine(text);
         }
 
-        //public void PrintAsTable(st)
-
         public void PrintSuccess(string text)
         {
             text = _emojiManager.GetTextWithEmoticons(text);
-            Console.WriteLine(_emojiManager.GetLoadedEmoji("checkmark") + " " + text);
+            Console.WriteLine(_emojiManager.GetEmoji("checkmark") + " " + text);
         }
 
         public void PrintError(string text)
         {
             text = _emojiManager.GetTextWithEmoticons(text);
-            Console.WriteLine(_emojiManager.GetLoadedEmoji("crossmark") + " " + text);
+            Console.WriteLine(_emojiManager.GetEmoji("crossmark") + " " + text);
         }
 
         public void PrintWarn(string text)
         {
             text = _emojiManager.GetTextWithEmoticons(text);
-            Console.WriteLine(_emojiManager.GetLoadedEmoji("warn") + " " + text);
+            Console.WriteLine(_emojiManager.GetEmoji("warn") + " " + text);
         }
     }
 }
