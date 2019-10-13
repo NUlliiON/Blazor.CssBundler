@@ -1,36 +1,33 @@
-﻿using Blazor.CssBundler.Commands.Options;
+﻿using Blazor.CssBundler.Commands;
+using Blazor.CssBundler.Commands.Options;
 using Blazor.CssBundler.Exceptions;
-using Blazor.CssBundler.Models.Settings;
-using Blazor.CssBundler.Settings;
+using Blazor.CssBundler.Extensions;
+using Blazor.CssBundler.Logging;
 using CommandLine;
-using JsonSubTypes;
-using Newtonsoft.Json;
-using System.IO;
-using System.Linq;
+using System;
 using System.Threading.Tasks;
 
 namespace Blazor.CssBundler
 {
     class Program
     {
+        static int Sum(int a, int b) => a + b;
+
         static async Task Main(string[] args)
-        {            
-            if (args.Length < 1)
+        {
+            ILogger logger = new ExtendedLogger();
+            CommandRunner cmd = new CommandRunner(logger);
+
+            Parser.Default.Settings.Set(s =>
             {
-                return;
-            }
-            try
-            {
-                Parser.Default.ParseArguments<WatchOptions, ChangeSettingsOptions>(args)
-                    .MapResult(
-                    //(ChangeSettingsOptions opts) => RunChangeSettingsAndReturnExitCode(opts),
-                    //(WatchOptions opts) => RunWatchAndReturnExitCode(opts),
-                    errs => 1);
-            }
-            catch (InvalidSettingsException)
-            {
-                //ConsoleExtension.WriteError("Unable to load settings. Use arg --set-settings for set new settings!");
-            }
+                s.IgnoreUnknownArguments = false;
+                s.CaseSensitive = true;
+            });
+
+            Parser.Default.ParseArguments<ChangeSettingsOptions>(args)
+                .MapResult(
+                (ChangeSettingsOptions opts) => cmd.Execute(new ChangeSettingsCommand(), opts),
+                errs => 1);
         }
     }
 }
