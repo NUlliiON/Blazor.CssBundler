@@ -40,7 +40,7 @@ namespace Blazor.CssBundler.Emoji
         /// </summary>
         /// <param name="text"></param>
         /// <returns>emoticons</returns>
-        public List<string> ParseEmoticons(string text)
+        private List<string> ParseEmoticons(string text)
         {
             List<string> uniqueEmoticonsList = new List<string>();
 
