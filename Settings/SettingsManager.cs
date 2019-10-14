@@ -37,18 +37,19 @@ namespace Blazor.CssBundler.Settings
         /// <typeparam name="T"></typeparam>
         /// <param name="filePath">full path to settings</param>
         /// <returns></returns>
-        public static async Task<T> ReadAsync<T>(string filePath) where T : BaseSettings
+        public static async Task<T> ReadJsonAsync<T>(string filePath) where T : BaseSettings
         {
             try
             {
-                byte[] jsonBytes;
+                
+                byte[] buffer;
                 using (FileStream fs = new FileStream(filePath, FileMode.OpenOrCreate))
                 {
-                    jsonBytes = new byte[fs.Length];
-                    await fs.ReadAsync(jsonBytes, 0, jsonBytes.Length);
-
+                    buffer = new byte[fs.Length];
+                    await fs.ReadAsync(buffer, 0, buffer.Length);
                 }
-                string json = Encoding.Default.GetString(jsonBytes);
+
+                string json = Encoding.Default.GetString(buffer);
                 if (NewtonjsonEtensions.ValidateJson(json))
                 {
                     return JsonConvert.DeserializeObject<T>(json);
@@ -76,7 +77,7 @@ namespace Blazor.CssBundler.Settings
         {
             foreach (FileInfo file in new DirectoryInfo("settings").GetFiles("*.settings.json", SearchOption.TopDirectoryOnly))
             {
-                BaseSettings settings = await ReadAsync<BaseSettings>(file.FullName);
+                BaseSettings settings = await ReadJsonAsync<BaseSettings>(file.FullName);
                 if (settings?.Name != null)
                 {
                     yield return (settings.Name, settings.Type, file.LastWriteTime);
@@ -93,7 +94,7 @@ namespace Blazor.CssBundler.Settings
         {
             foreach (FileInfo file in new DirectoryInfo("settings").GetFiles($"*.settings.json", SearchOption.TopDirectoryOnly))
             {
-                BaseSettings settings = await ReadAsync<BaseSettings>(file.FullName);
+                BaseSettings settings = await ReadJsonAsync<BaseSettings>(file.FullName);
                 if (settings?.Type == settingsTypeEnum && 
                     settings?.Name != null
                     )
