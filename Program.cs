@@ -16,13 +16,7 @@ namespace Blazor.CssBundler
         static async Task Main(string[] args)
         {
             ILogger logger = new ExtendedLogger();
-            CommandRunner cmd = new CommandRunner(logger);
-
-            Parser.Default.Settings.Set(s =>
-            {
-                s.IgnoreUnknownArguments = false;
-                s.CaseSensitive = true;
-            });
+            CommandExecuter cmd = new CommandExecuter(logger);
 
             Parser.Default.ParseArguments<ChangeSettingsOptions>(args)
                 .MapResult(
