@@ -1,8 +1,8 @@
 ﻿using Blazor.CssBundler.Commands.Options;
 using Blazor.CssBundler.Logging;
+using Blazor.CssBundler.Models.Settings;
+using Blazor.CssBundler.Settings;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Blazor.CssBundler.Commands
@@ -14,9 +14,33 @@ namespace Blazor.CssBundler.Commands
             throw new NotImplementedException();
         }
 
-        public override Task ExecuteAsync(ILogger logger, CreateSettingsOptions options)
+        public override async Task ExecuteAsync(ILogger logger, CreateSettingsOptions options)
         {
-            
+            if (await SettingsManager.SettingsExists(options.SettingsName))
+            {
+                logger.Print("</warn/> Settings with this name or type already exists");
+                return;
+            }
+
+            await SettingsManager.CreateAsync(options.SettingsName);
+            if (options.SettingsType == SettingsType.Application)
+            {
+                await SettingsManager.SaveAsync(new ApplicationSettings(), options.SettingsName);
+            }
+            else if (options.SettingsType == SettingsType.Component)
+            {
+                await SettingsManager.SaveAsync(new ComponentSettings(), options.SettingsName);
+            }
+            else
+            {
+                logger.Print($"Settings type with name \"{options.SettingsName}\" not found");
+                logger.Print("Available types:");
+                foreach (string enumValue in Enum.GetValues(typeof(SettingsType)))
+                {
+                    logger.Print(" - " + enumValue);
+                }
+            }
+            logger.Print($"Settings with name \"{options.SettingsName}\" and type \"{options.SettingsType.ToString()}\" </checkmark/> created </grinning_face/>");
         }
     }
 }
