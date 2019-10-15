@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Blazor.CssBundler.Commands
 {
-    abstract class BaseCommand<T>
+    abstract class BaseCommand<TOptions>
     {
-        public abstract void Execute(ILogger logger, T options);
-        public abstract Task ExecuteAsync(ILogger logger, T options);
+        public abstract void Execute(ILogger logger, TOptions options);
+        public abstract Task ExecuteAsync(ILogger logger, TOptions options);
     }
 }
