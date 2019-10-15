@@ -10,13 +10,13 @@ namespace Blazor.CssBundler.Analyzing
 {
     class AssemblyAnalyzer : IAnalyzer<AssemblyAnalyzingResult>
     {
-        private string[] _offNetNamespaces = { "System", "Microsoft", "netstandard" };
+        private string[] _offDotNetNamespaces = { "System", "Microsoft", "netstandard" };
 
         public AssemblyAnalyzingResult Analyze(string assemblyPath)
         {
-            var asmPathsList = new List<string>();
-            string[] refsPaths = GetLocalReferences(assemblyPath).ToArray();
-            return new AssemblyAnalyzingResult() { AssemblyPaths = refsPaths };
+            var assemblyPathList = new List<string>();
+            string[] referencePaths = GetLocalReferences(assemblyPath).ToArray();
+            return new AssemblyAnalyzingResult() { AssemblyPaths = referencePaths };
         }
 
         /// <summary>
@@ -26,28 +26,29 @@ namespace Blazor.CssBundler.Analyzing
         /// <returns></returns>
         private List<string> GetLocalReferences(string assemblyPath)
         {
-            return GetReferencesRecursively(assemblyPath, _offNetNamespaces);
+            return GetReferencesRecursively(assemblyPath, _offDotNetNamespaces);
         }
 
         private List<string> GetReferencesRecursively(string assemblyPath, string[] ignoredNamespaces)
         {
-            var asmPathsList = new List<string>();
-            string asmDir = Path.GetDirectoryName(assemblyPath);
-            var asm = Assembly.LoadFile(assemblyPath);
-            var refs = asm.GetReferencedAssemblies();
-            foreach (var @ref in refs)
+            var assembly = Assembly.LoadFile(assemblyPath);
+            string assemblyDir = Path.GetDirectoryName(assemblyPath);
+            var assemblyPathList = new List<string>();
+
+            AssemblyName[] references = assembly.GetReferencedAssemblies();
+            foreach (var reference in references)
             {
-                if (!ignoredNamespaces.Contains(@ref.Name.Split('.')[0]))
+                if (!ignoredNamespaces.Contains(reference.Name.Split('.')[0]))
                 {
-                    string refAsmPath = Path.Combine(asmDir, $"{@ref.Name}.dll");
-                    if (File.Exists(refAsmPath))
+                    string referenceAssemblyPath = Path.Combine(assemblyDir, $"{reference.Name}.dll");
+                    if (File.Exists(referenceAssemblyPath))
                     {
-                        asmPathsList.Add(refAsmPath);
-                        asmPathsList.AddRange(GetReferencesRecursively(refAsmPath, ignoredNamespaces));
+                        assemblyPathList.Add(referenceAssemblyPath);
+                        assemblyPathList.AddRange(GetReferencesRecursively(referenceAssemblyPath, ignoredNamespaces));
                     }
                 }
             }
-            return asmPathsList;
+            return assemblyPathList;
         }
     }
 }
