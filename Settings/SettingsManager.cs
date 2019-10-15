@@ -40,6 +40,11 @@ namespace Blazor.CssBundler.Settings
             await File.WriteAllTextAsync(settingsPath, json);
         }
 
+        /// <summary>
+        /// Create new settings asynchronously
+        /// </summary>
+        /// <param name="settingsName"></param>
+        /// <returns></returns>
         public static async Task CreateAsync(string settingsName)
         {
             if (settingsName == null)
