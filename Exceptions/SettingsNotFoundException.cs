@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Blazor.CssBundler.Models.Settings;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -11,16 +12,10 @@ namespace Blazor.CssBundler.Exceptions
         /// </summary>
         public string Name { get; set; }
 
-        /// <summary>
-        /// Settings type
-        /// </summary>
-        public string Type { get; set; }
-
-        public SettingsNotFoundException(string name, string type)
+        public SettingsNotFoundException(string name)
             : base()
         {
             Name = name;
-            Type = type;
         }
     }
 }
