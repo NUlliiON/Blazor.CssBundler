@@ -35,21 +35,17 @@ namespace Blazor.CssBundler.Settings
         }
 
         /// <summary>
-        /// Read settings from file asynchronously
+        /// Read json file asynchronously
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="name">settings name</param>
+        /// <param name="name">file name without extension</param>
         /// <returns></returns>
-        public static async Task<T> ReadJsonAsync<T>(string name) where T : BaseSettings
+        private static async Task<T> ReadJsonFileAsync<T>(string fileName) where T : BaseSettings
         {
             try
             {
-                string settingsPath = await GetAboutAllSettings()
-                    .Where(x => x.name == name)
-                    .Select(x => x.path).FirstOrDefaultAsync();
-
                 byte[] buffer;
-                using (FileStream fs = new FileStream(settingsPath, FileMode.OpenOrCreate))
+                using (FileStream fs = new FileStream(MakeSettingsPath(fileName), FileMode.OpenOrCreate))
                 {
                     buffer = new byte[fs.Length];
                     await fs.ReadAsync(buffer, 0, buffer.Length);
@@ -69,6 +65,28 @@ namespace Blazor.CssBundler.Settings
         }
 
         /// <summary>
+        /// Read settings from file asynchronously
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name">settings name</param>
+        /// <returns></returns>
+        public static async Task<T> ReadJsonSettingsAsync<T>(string name) where T : BaseSettings
+        {
+            try
+            {
+                string settingsPath = await GetAboutAllSettings()
+                    .Where(x => x.name == name)
+                    .Select(x => x.path).FirstOrDefaultAsync();
+
+                return await ReadJsonFileAsync<T>(name);
+            }
+            catch
+            {
+                return default(T);
+            }
+        }
+
+        /// <summary>
         /// Checking settings with specified name
         /// </summary>
         /// <param name="name">settings name</param>
@@ -83,7 +101,7 @@ namespace Blazor.CssBundler.Settings
         {
             foreach (FileInfo file in new DirectoryInfo("settings").GetFiles("*.json", SearchOption.TopDirectoryOnly))
             {
-                BaseSettings settings = await ReadJsonAsync<BaseSettings>(Path.GetFileNameWithoutExtension(file.Name));
+                BaseSettings settings = await ReadJsonFileAsync<BaseSettings>(Path.GetFileNameWithoutExtension(file.Name));
                 if (settings?.Name != null)
                 {
                     yield return (settings.Name, file.FullName, settings.Type, file.LastWriteTime);
@@ -100,7 +118,7 @@ namespace Blazor.CssBundler.Settings
         {
             foreach (FileInfo file in new DirectoryInfo("settings").GetFiles($"*.json", SearchOption.TopDirectoryOnly))
             {
-                BaseSettings settings = await ReadJsonAsync<BaseSettings>(Path.GetFileNameWithoutExtension(file.Name));
+                BaseSettings settings = await ReadJsonFileAsync<BaseSettings>(Path.GetFileNameWithoutExtension(file.Name));
                 if (settings?.Name != null && settings?.Type == settingsType)
                 {
                     yield return (settings.Name, file.FullName, settings.Type, file.LastWriteTime);
@@ -115,7 +133,7 @@ namespace Blazor.CssBundler.Settings
         /// <returns></returns>
         private static string MakeSettingsPath(string name)
         {
-            return Path.Combine(_settingsPath, $"{name}.settings.json");
+            return Path.Combine(_settingsPath, $"{name}.json");
         }
     }
 }
