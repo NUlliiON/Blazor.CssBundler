@@ -2,7 +2,7 @@
   "profiles": {
     "Blazor.CssBuilder": {
       "commandName": "Project",
-      "commandLineArgs": "-change-settings",
+      "commandLineArgs": "change-settings",
       "nativeDebugging": false
     }
   }
