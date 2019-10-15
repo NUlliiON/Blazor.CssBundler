@@ -1,4 +1,5 @@
 ﻿using Blazor.CssBundler.Commands.Options;
+using Blazor.CssBundler.Exceptions;
 using Blazor.CssBundler.Interactive;
 using Blazor.CssBundler.Logging;
 using Blazor.CssBundler.Models.Settings;
@@ -19,23 +20,40 @@ namespace Blazor.CssBundler.Commands
         public override async Task ExecuteAsync(ILogger logger, ChangeSettingsOptions options)
         {
             Console.WriteLine("Select settings ");
+            BaseSettings settings = null;
             if (options.SettingsName == null)
             {
                 var settingsList = await SettingsManager.GetAboutAllSettings().ToArrayAsync();
                 var selection = new VerticalSettingsSelector(settingsList.Select(x => new SettingsSelectionItem(x.name, x.type)).ToArray());
                 SettingsSelectionItem item = selection.GetUserSelection();
 
-                if (item.Type == SettingsType.Application)
+                if (SettingsManager.SettingsExists(item.Name))
                 {
-                    var settings = await SettingsManager.ReadAsync<ApplicationSettings>(item.Name);
-                    var settingsChanger = new ApplicationSettingsChanger();
-                    settingsChanger.Change(settings);
+                    settings = await SettingsManager.ReadSettingsAsync<BaseSettings>(item.Name);
                 }
-                else if (item.Type == SettingsType.Component)
+            }
+            else
+            {
+                if (SettingsManager.SettingsExists(options.SettingsName))
                 {
-                    var settings = await SettingsManager.ReadAsync<ComponentSettings>(item.Name);
-                    var settingsChanger = new ComponentSettingsChanger();
+                    settings = await SettingsManager.ReadSettingsAsync<BaseSettings>(options.SettingsName);
                 }
+            }
+
+            if (settings == null)
+            {
+                throw new SettingsNotFoundException(options.SettingsName);
+            }
+
+            if (settings.Type == SettingsType.Application)
+            {
+                var settingsChanger = new ApplicationSettingsChanger();
+                settingsChanger.Change((ApplicationSettings)settings);
+            }
+            else if (settings.Type == SettingsType.Component)
+            {
+                var settingsChanger = new ComponentSettingsChanger();
+                settingsChanger.Change((ComponentSettings)settings);
             }
         }
     }
