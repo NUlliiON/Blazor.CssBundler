@@ -88,8 +88,9 @@ namespace Blazor.CssBundler.Settings
         {
             foreach (FileInfo file in new DirectoryInfo("settings").GetFiles($"*.{_settingsFileExtension}", SearchOption.TopDirectoryOnly))
             {
-                BaseSettings settings = await ReadAsync<BaseSettings>(Path.GetFileNameWithoutExtension(file.Name));
-                if (settings?.Name == Path.GetFileNameWithoutExtension(file.Name))
+                string fileName = Path.GetFileNameWithoutExtension(file.Name);
+                BaseSettings settings = await ReadAsync<BaseSettings>(fileName);
+                if (settings?.Name == fileName)
                 {
                     yield return (settings.Name, file.FullName, settings.Type, file.LastWriteTime);
                 }
@@ -105,9 +106,9 @@ namespace Blazor.CssBundler.Settings
         {
             foreach (FileInfo file in new DirectoryInfo("settings").GetFiles($"*.{_settingsFileExtension}", SearchOption.TopDirectoryOnly))
             {
-                BaseSettings settings = await ReadAsync<BaseSettings>(Path.GetFileNameWithoutExtension(file.Name));
-                if (settings?.Name == Path.GetFileNameWithoutExtension(file.Name) && 
-                    settings?.Type == settingsType)
+                string fileName = Path.GetFileNameWithoutExtension(file.Name);
+                BaseSettings settings = await ReadAsync<BaseSettings>(fileName);
+                if (settings?.Name == fileName && settings?.Type == settingsType)
                 {
                     yield return (settings.Name, file.FullName, settings.Type, file.LastWriteTime);
                 }
