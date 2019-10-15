@@ -10,12 +10,12 @@ namespace Blazor.CssBundler.Exceptions
         /// <summary>
         /// Settings name
         /// </summary>
-        public string Name { get; set; }
+        public string SettingsName { get; set; }
 
-        public SettingsNotFoundException(string name)
+        public SettingsNotFoundException(string settingsName)
             : base()
         {
-            Name = name;
+            SettingsName = settingsName;
         }
     }
 }
