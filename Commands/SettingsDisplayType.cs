@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Blazor.CssBundler.Commands.Options
+namespace Blazor.CssBundler.Commands
 {
     public enum SettingsDisplayType
     {
