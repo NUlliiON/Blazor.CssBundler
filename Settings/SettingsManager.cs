@@ -65,12 +65,12 @@ namespace Blazor.CssBundler.Settings
         }
 
         /// <summary>
-        /// Read settings from file asynchronously
+        /// Read settings in json format asynchronously
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="name">settings name</param>
         /// <returns></returns>
-        public static async Task<T> ReadJsonSettingsAsync<T>(string name) where T : BaseSettings
+        public static async Task<T> ReadSettingsAsync<T>(string name) where T : BaseSettings
         {
             try
             {
@@ -101,7 +101,7 @@ namespace Blazor.CssBundler.Settings
         {
             foreach (FileInfo file in new DirectoryInfo("settings").GetFiles("*.json", SearchOption.TopDirectoryOnly))
             {
-                BaseSettings settings = await ReadJsonFileAsync<BaseSettings>(Path.GetFileNameWithoutExtension(file.Name));
+                BaseSettings settings = await ReadSettingsAsync<BaseSettings>(Path.GetFileNameWithoutExtension(file.Name));
                 if (settings?.Name != null)
                 {
                     yield return (settings.Name, file.FullName, settings.Type, file.LastWriteTime);
@@ -118,7 +118,7 @@ namespace Blazor.CssBundler.Settings
         {
             foreach (FileInfo file in new DirectoryInfo("settings").GetFiles($"*.json", SearchOption.TopDirectoryOnly))
             {
-                BaseSettings settings = await ReadJsonFileAsync<BaseSettings>(Path.GetFileNameWithoutExtension(file.Name));
+                BaseSettings settings = await ReadSettingsAsync<BaseSettings>(Path.GetFileNameWithoutExtension(file.Name));
                 if (settings?.Name != null && settings?.Type == settingsType)
                 {
                     yield return (settings.Name, file.FullName, settings.Type, file.LastWriteTime);
