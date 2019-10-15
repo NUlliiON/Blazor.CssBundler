@@ -94,14 +94,14 @@ namespace Blazor.CssBundler.Settings
         /// <summary>
         /// Get specified settings
         /// </summary>
-        /// <param name="settingsTypeEnum">settings type</param>
+        /// <param name="settingsType">settings type</param>
         ///// <returns></returns>
-        public static async IAsyncEnumerable<(string name, string path, SettingsType type, DateTime lastChaningTime)> GetAboutSettings(SettingsType settingsTypeEnum)
+        public static async IAsyncEnumerable<(string name, string path, SettingsType type, DateTime lastChaningTime)> GetAboutSettings(SettingsType settingsType)
         {
             foreach (FileInfo file in new DirectoryInfo("settings").GetFiles($"*.json", SearchOption.TopDirectoryOnly))
             {
                 BaseSettings settings = await ReadJsonAsync<BaseSettings>(Path.GetFileNameWithoutExtension(file.Name));
-                if (settings?.Name != null && settings?.Type == settingsTypeEnum)
+                if (settings?.Name != null && settings?.Type == settingsType)
                 {
                     yield return (settings.Name, file.FullName, settings.Type, file.LastWriteTime);
                 }
