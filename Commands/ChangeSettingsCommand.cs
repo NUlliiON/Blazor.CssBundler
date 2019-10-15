@@ -27,16 +27,16 @@ namespace Blazor.CssBundler.Commands
                 var selection = new VerticalSettingsSelector(settingsList.Select(x => new SettingsSelectionItem(x.name, x.type)).ToArray());
                 SettingsSelectionItem item = selection.GetUserSelection();
 
-                if (SettingsManager.SettingsExists(item.Name))
+                if (await SettingsManager.SettingsExists(item.Name))
                 {
-                    settings = await SettingsManager.ReadSettingsAsync<BaseSettings>(item.Name);
+                    settings = await SettingsManager.ReadAsync<BaseSettings>(item.Name);
                 }
             }
             else
             {
-                if (SettingsManager.SettingsExists(options.SettingsName))
+                if (await SettingsManager.SettingsExists(options.SettingsName))
                 {
-                    settings = await SettingsManager.ReadSettingsAsync<BaseSettings>(options.SettingsName);
+                    settings = await SettingsManager.ReadAsync<BaseSettings>(options.SettingsName);
                 }
             }
 

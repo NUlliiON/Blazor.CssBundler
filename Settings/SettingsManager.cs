@@ -14,8 +14,8 @@ namespace Blazor.CssBundler.Settings
     public class SettingsManager
     {
         private static readonly string _rootSettingsDir = Path.Combine(Environment.CurrentDirectory, "settings");
-        private static readonly IReader _reader = new Readers.JsonReader();
         private static readonly string _settingsFileExtension = "json";
+        private static readonly IReader _reader = new Readers.JsonReader();
 
         /// <summary>
         /// Save settings asynchronously
@@ -39,12 +39,12 @@ namespace Blazor.CssBundler.Settings
         }
 
         /// <summary>
-        /// Read settings in json format asynchronously
+        /// Read settings asynchronously
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="name">settings name</param>
         /// <returns></returns>
-        public static async Task<T> ReadSettingsAsync<T>(string name) where T : BaseSettings
+        public static async Task<T> ReadAsync<T>(string name) where T : BaseSettings
         {
             try
             {
@@ -75,7 +75,7 @@ namespace Blazor.CssBundler.Settings
         {
             foreach (FileInfo file in new DirectoryInfo("settings").GetFiles($"*.{_settingsFileExtension}", SearchOption.TopDirectoryOnly))
             {
-                BaseSettings settings = await ReadSettingsAsync<BaseSettings>(Path.GetFileNameWithoutExtension(file.Name));
+                BaseSettings settings = await ReadAsync<BaseSettings>(Path.GetFileNameWithoutExtension(file.Name));
                 if (settings?.Name == Path.GetFileNameWithoutExtension(file.Name))
                 {
                     yield return (settings.Name, file.FullName, settings.Type, file.LastWriteTime);
@@ -92,7 +92,7 @@ namespace Blazor.CssBundler.Settings
         {
             foreach (FileInfo file in new DirectoryInfo("settings").GetFiles($"*.{_settingsFileExtension}", SearchOption.TopDirectoryOnly))
             {
-                BaseSettings settings = await ReadSettingsAsync<BaseSettings>(Path.GetFileNameWithoutExtension(file.Name));
+                BaseSettings settings = await ReadAsync<BaseSettings>(Path.GetFileNameWithoutExtension(file.Name));
                 if (settings?.Name == Path.GetFileNameWithoutExtension(file.Name) && 
                     settings?.Type == settingsType)
                 {
