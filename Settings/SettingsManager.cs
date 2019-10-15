@@ -1,4 +1,5 @@
-﻿using Blazor.CssBundler.Models.Settings;
+﻿using Blazor.CssBundler.Exceptions;
+using Blazor.CssBundler.Models.Settings;
 using Blazor.CssBundler.Readers;
 using JsonSubTypes;
 using Newtonsoft.Json;
@@ -21,35 +22,47 @@ namespace Blazor.CssBundler.Settings
         /// Save settings asynchronously
         /// </summary>
         /// <param name="settings"></param>
-        /// <param name="name">settings name</param>
+        /// <param name="settingsName">settings name</param>
         /// <returns></returns>
-        public static async Task SaveAsync(object settings, string name)
+        public static async Task SaveAsync(object settings, string settingsName)
         {
-            if (settings == null)
-            {
+            if (settings == null) 
                 throw new ArgumentNullException("settings");
-            }
 
-            string settingsPath = Path.Combine(_rootSettingsDir, name + _settingsFileExtension);
-            using (FileStream fs = new FileStream(settingsPath, FileMode.OpenOrCreate))
-            {
-                byte[] buffer = Encoding.Default.GetBytes(JsonConvert.SerializeObject(settings));
-                await fs.WriteAsync(buffer, 0, buffer.Length);
-            }
+            if (settingsName == null) 
+                throw new ArgumentNullException("settingsName");
+
+            if (!await SettingsExists(settingsName)) 
+                throw new SettingsNotFoundException(settingsName);
+
+            string settingsPath = MakeSettingsPath(settingsName);
+            string json = JsonConvert.SerializeObject(settings);
+            await File.WriteAllTextAsync(settingsPath, json);
+        }
+
+        public static async Task CreateAsync(string settingsName)
+        {
+            if (settingsName == null)
+                throw new ArgumentNullException("settingsName");
+
+            if (await SettingsExists(settingsName))
+                throw new SettingsAlreadyExistsException(settingsName);
+                
+            await File.WriteAllTextAsync(MakeSettingsPath(settingsName), "");
         }
 
         /// <summary>
         /// Read settings asynchronously
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="name">settings name</param>
+        /// <param name="settingsName">settings name</param>
         /// <returns></returns>
-        public static async Task<T> ReadAsync<T>(string name) where T : BaseSettings
+        public static async Task<T> ReadAsync<T>(string settingsName) where T : BaseSettings
         {
             try
             {
                 string settingsPath = await GetAboutAllSettings()
-                    .Where(x => x.name == name)
+                    .Where(x => x.name == settingsName)
                     .Select(x => x.path).FirstOrDefaultAsync();
 
                 return await _reader.ReadAsync<T>(settingsPath);
@@ -63,9 +76,9 @@ namespace Blazor.CssBundler.Settings
         /// <summary>
         /// Checking for the existence of settings with the specified name
         /// </summary>
-        /// <param name="name">settings name</param>
+        /// <param name="settingsName">settings name</param>
         /// <returns></returns>
-        public static async Task<bool> SettingsExists(string name) => await GetAboutAllSettings().AnyAsync(x => x.name == name);
+        public static async Task<bool> SettingsExists(string settingsName) => await GetAboutAllSettings().AnyAsync(x => x.name == settingsName);
 
         /// <summary>
         /// Get all settings
@@ -99,6 +112,16 @@ namespace Blazor.CssBundler.Settings
                     yield return (settings.Name, file.FullName, settings.Type, file.LastWriteTime);
                 }
             }
+        }
+
+        /// <summary>
+        /// Make full path to settings
+        /// </summary>
+        /// <param name="settingsName">settings name</param>
+        /// <returns></returns>
+        private static string MakeSettingsPath(string settingsName)
+        {
+            return Path.Combine(_rootSettingsDir, $"{settingsName}.{_settingsFileExtension}");
         }
     }
 }
