@@ -11,17 +11,20 @@ namespace Blazor.CssBundler
 {
     class Program
     {
-        static int Sum(int a, int b) => a + b;
-
         static async Task Main(string[] args)
         {
             ILogger logger = new ExtendedLogger();
             CommandExecuter cmd = new CommandExecuter(logger);
 
-            Parser.Default.ParseArguments<ChangeSettingsOptions>(args)
+            var parser = new Parser(config => config.CaseInsensitiveEnumValues = true);
+            await parser.ParseArguments<SettingsListOptions, ChangeSettingsOptions>(args)
                 .MapResult(
-                (ChangeSettingsOptions opts) => cmd.Execute(new ChangeSettingsCommand(), opts),
-                errs => 1);
+                async (SettingsListOptions options) => await cmd.ExecuteAsync(new SettingsListCommand(), options),
+                async (CreateSettingsOptions options) => await cmd.ExecuteAsync(new CreateSettingsCommand(), options),
+                async (ChangeSettingsOptions options) => await cmd.ExecuteAsync(new ChangeSettingsCommand(), options),
+                async (WatchOptions options) => await cmd.ExecuteAsync(new WatchCommand(), options),
+                // TODO: async (BuildOptions options) => await cmd.ExecuteAsync(new BuildCommand(), options),
+                async errs => 1);
         }
     }
 }
