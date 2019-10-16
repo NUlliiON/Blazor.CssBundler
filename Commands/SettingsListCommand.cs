@@ -16,22 +16,26 @@ namespace Blazor.CssBundler.Commands
 
         public override async Task ExecuteAsync(ILogger logger, SettingsListOptions options)
         {
-            var settingsList = await SettingsManager.GetAboutAllSettings()
-                .OrderByDescending(x => x.type)
-                .ToListAsync();
-
-            if (options.Type == SettingsDisplayType.All)
+            if (options.SettingsType == null)
             {
+                var settingsList = await SettingsManager.GetAboutAllSettings()
+                    .OrderByDescending(x => x.type)
+                    .ToListAsync();
+
                 for (int i = 0; i < settingsList.Count; i++)
                 {
-                    logger.Print("(" + (i + 1) + ") " + settingsList[i].name + " - " + settingsList[i].type);
+                    logger.Print("[" + (i + 1) + "] " + settingsList[i].name + " - " + settingsList[i].type);
                 }
             }
             else
             {
+                var settingsList = await SettingsManager.GetAboutSettings(options.SettingsType.Value)
+                    .OrderByDescending(x => x.type)
+                    .ToListAsync();
+
                 for (int i = 0; i < settingsList.Count; i++)
                 {
-                    logger.Print("(" + (i + 1) + ") " + settingsList[i].name);
+                    logger.Print("[" + (i + 1) + "] " + settingsList[i].name);
                 }
             }
         }
