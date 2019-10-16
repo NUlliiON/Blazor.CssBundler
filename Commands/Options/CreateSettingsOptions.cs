@@ -9,10 +9,10 @@ namespace Blazor.CssBundler.Commands.Options
     [Verb("create-settings", HelpText = "Create new settings")]
     class CreateSettingsOptions
     {
-        [Option(SetName = "name", HelpText = "Settings name", Required = true)]
+        [Option(longName: "name", shortName: 'n', HelpText = "Settings name")]
         public string SettingsName { get; set; }
 
-        [Option(SetName = "type", HelpText = "Settings type", Required = true)]
+        [Option(longName: "type", shortName: 't', HelpText = "Settings type")]
         public SettingsType SettingsType { get; set; }
     }
 }

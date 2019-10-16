@@ -8,7 +8,7 @@ namespace Blazor.CssBundler.Commands.Options
     [Verb("change-settings", HelpText = "Change settings")]
     class ChangeSettingsOptions
     {
-        [Option(SetName = "name", HelpText = "Settings name", Required = false)]
+        [Option(longName: "name", shortName: 'n', HelpText = "Settings name")]
         public string SettingsName { get; set; }
     }
 }
