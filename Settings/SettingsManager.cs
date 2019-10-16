@@ -66,11 +66,7 @@ namespace Blazor.CssBundler.Settings
         {
             try
             {
-                string settingsPath = await GetAboutAllSettings()
-                    .Where(x => x.name == settingsName)
-                    .Select(x => x.path).FirstOrDefaultAsync();
-
-                return await _reader.ReadAsync<T>(settingsPath);
+                return await _reader.ReadAsync<T>(MakeSettingsPath(settingsName));
             }
             catch
             {
@@ -86,7 +82,7 @@ namespace Blazor.CssBundler.Settings
         public static async Task<bool> SettingsExists(string settingsName) => await GetAboutAllSettings().AnyAsync(x => x.name == settingsName);
 
         /// <summary>
-        /// Get all settings
+        /// Get all settings info
         /// </summary>
         /// <returns></returns>
         public static async IAsyncEnumerable<(string name, string path, SettingsType type, DateTime lastChangingTime)> GetAboutAllSettings()
@@ -103,7 +99,7 @@ namespace Blazor.CssBundler.Settings
         }
 
         /// <summary>
-        /// Get specified settings
+        /// Get specified settings info
         /// </summary>
         /// <param name="settingsType">settings type</param>
         ///// <returns></returns>
