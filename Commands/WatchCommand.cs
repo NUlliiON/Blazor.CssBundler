@@ -26,18 +26,30 @@ namespace Blazor.CssBundler.Commands
         public override async Task ExecuteAsync(ILogger logger, WatchOptions options)
         {
             _logger = logger;
-
             BaseSettings settings = null;
+
             if (options.SettingsName == null)
             {
                 var settingsList = await SettingsManager.GetAboutAllSettings().ToArrayAsync();
+                if (settingsList.Length == 0)
+                {
+                    logger.Print("</crossmark/> No settings found");
+                    return;
+                }
+
                 var selection = new VerticalSettingsSelector(settingsList.Select(x => new SettingsSelectionItem(x.name, x.type)).ToArray());
                 SettingsSelectionItem selectedItem = selection.GetUserSelection();
+
                 settings = await SettingsManager.ReadAsync<BaseSettings>(selectedItem.Name);
             }
             else
             {
                 settings = await SettingsManager.ReadAsync<BaseSettings>(options.SettingsName);
+            }
+
+            if (settings == null)
+            {
+                logger.Print("</crossmark/> Unable to load selected settings");
             }
         
             if (settings.Type == SettingsType.Application)
@@ -47,6 +59,15 @@ namespace Blazor.CssBundler.Commands
             else if (settings.Type == SettingsType.Component)
             {
                 await WatchComponent((ComponentSettings)settings);
+            }
+            else
+            {
+                logger.Print($"Settings contains type \"{options.SettingsName}\" which not supported");
+                logger.Print("Available types:");
+                foreach (string enumValue in Enum.GetValues(typeof(SettingsType)))
+                {
+                    logger.Print(" - " + enumValue);
+                }
             }
         }
 
