@@ -17,7 +17,7 @@ namespace Blazor.CssBundler
             CommandExecuter cmd = new CommandExecuter(logger);
 
             var parser = new Parser(config => config.CaseInsensitiveEnumValues = true);
-            await parser.ParseArguments<SettingsListOptions, ChangeSettingsOptions>(args)
+            await parser.ParseArguments<SettingsListOptions, CreateSettingsOptions, ChangeSettingsOptions, WatchOptions>(args)
                 .MapResult(
                 async (SettingsListOptions options) => await cmd.ExecuteAsync(new SettingsListCommand(), options),
                 async (CreateSettingsOptions options) => await cmd.ExecuteAsync(new CreateSettingsCommand(), options),
