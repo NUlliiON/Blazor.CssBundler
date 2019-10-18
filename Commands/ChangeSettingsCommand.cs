@@ -19,41 +19,61 @@ namespace Blazor.CssBundler.Commands
 
         public override async Task ExecuteAsync(ILogger logger, ChangeSettingsOptions options)
         {
-            Console.WriteLine("Select settings ");
-            BaseSettings settings = null;
-            if (options.SettingsName == null)
+            try
             {
-                var settingsList = await SettingsManager.GetAboutAllSettings().ToArrayAsync();
-                var selection = new VerticalSettingsSelector(settingsList.Select(x => new SettingsSelectionItem(x.name, x.type)).ToArray());
-                SettingsSelectionItem item = selection.GetUserSelection();
+                BaseSettings oldSettings = null;
 
-                if (await SettingsManager.SettingsExists(item.Name))
+                if (options.SettingsName == null)
                 {
-                    settings = await SettingsManager.ReadAsync<BaseSettings>(item.Name);
+                    var settingsList = await SettingsManager.GetAboutAllSettings().ToArrayAsync();
+                    if (settingsList.Length == 0)
+                    {
+                        logger.Print("</crossmark/> No settings found");
+                        return;
+                    }
+
+                    var selection = new VerticalSettingsSelector(settingsList.Select(x => new SettingsSelectionItem(x.name, x.type)).ToArray());
+                    SettingsSelectionItem selectedItem = selection.GetUserSelection();
+
+                    if (await SettingsManager.SettingsExists(selectedItem.Name))
+                    {
+                        oldSettings = await SettingsManager.ReadAsync<BaseSettings>(selectedItem.Name);
+                    }
                 }
-            }
-            else
-            {
-                if (await SettingsManager.SettingsExists(options.SettingsName))
+                else
                 {
-                    settings = await SettingsManager.ReadAsync<BaseSettings>(options.SettingsName);
+                    if (await SettingsManager.SettingsExists(options.SettingsName))
+                    {
+                        oldSettings = await SettingsManager.ReadAsync<BaseSettings>(options.SettingsName);
+                    }
                 }
-            }
 
-            if (settings == null)
-            {
-                throw new SettingsNotFoundException(options.SettingsName);
-            }
+                if (oldSettings == null)
+                {
+                    throw new SettingsNotFoundException(options.SettingsName);
+                }
 
-            if (settings.Type == SettingsType.Application)
-            {
-                var settingsChanger = new ApplicationSettingsChanger();
-                settingsChanger.Change((ApplicationSettings)settings);
+
+                BaseSettings newSettings = null;
+                if (oldSettings.Type == SettingsType.Application)
+                {
+                    var settingsChanger = new ApplicationSettingsChanger();
+                    newSettings = settingsChanger.Change((ApplicationSettings)oldSettings);
+                }
+                else if (oldSettings.Type == SettingsType.Component)
+                {
+                    var settingsChanger = new ComponentSettingsChanger();
+                    newSettings = settingsChanger.Change((ComponentSettings)oldSettings);
+                }
+
+                if (oldSettings.Name != newSettings.Name)
+                    await SettingsManager.ChangeSettingsNameAsync(oldSettings.Name, newSettings.Name);
+
+                await SettingsManager.SaveAsync(newSettings);
             }
-            else if (settings.Type == SettingsType.Component)
+            catch (Exception ex)
             {
-                var settingsChanger = new ComponentSettingsChanger();
-                settingsChanger.Change((ComponentSettings)settings);
+
             }
         }
     }

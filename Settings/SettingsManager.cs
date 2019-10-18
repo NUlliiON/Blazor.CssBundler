@@ -18,25 +18,38 @@ namespace Blazor.CssBundler.Settings
         private static readonly string _settingsFileExtension = "json";
         private static readonly IReader _reader = new Readers.JsonReader();
 
+        public static async Task ChangeSettingsNameAsync(string oldName, string newName)
+        {
+            if (!await SettingsExists(oldName))
+                throw new SettingsNotFoundException(oldName);
+
+            BaseSettings settings = await ReadAsync<BaseSettings>(oldName);
+            settings.Name = newName;
+
+            string oldSettingsPath = MakeSettingsPath(oldName);
+            string newSettingsPath = MakeSettingsPath(newName);
+
+            File.Move(oldSettingsPath, newSettingsPath);
+
+            string json = JsonConvert.SerializeObject(settings, Formatting.Indented);
+            await File.WriteAllTextAsync(newSettingsPath, json);
+        }
+
         /// <summary>
         /// Save settings asynchronously
         /// </summary>
         /// <param name="settings"></param>
-        /// <param name="settingsName">settings name</param>
         /// <returns></returns>
-        public static async Task SaveAsync(object settings, string settingsName)
+        public static async Task SaveAsync(BaseSettings settings)
         {
             if (settings == null) 
                 throw new ArgumentNullException("settings");
 
-            if (settingsName == null) 
-                throw new ArgumentNullException("settingsName");
+            if (!await SettingsExists(settings.Name)) 
+                throw new SettingsNotFoundException(settings.Name);
 
-            if (!await SettingsExists(settingsName)) 
-                throw new SettingsNotFoundException(settingsName);
-
-            string settingsPath = MakeSettingsPath(settingsName);
-            string json = JsonConvert.SerializeObject(settings);
+            string settingsPath = MakeSettingsPath(settings.Name);
+            string json = JsonConvert.SerializeObject(settings, Formatting.Indented);
             await File.WriteAllTextAsync(settingsPath, json);
         }
 
@@ -54,6 +67,17 @@ namespace Blazor.CssBundler.Settings
                 throw new SettingsAlreadyExistsException(settingsName);
                 
             await File.WriteAllTextAsync(MakeSettingsPath(settingsName), "");
+        }
+
+        public static async Task DeleteAsync(string settingsName)
+        {
+            if (settingsName == null)
+                throw new ArgumentNullException("settingsName");
+
+            if (await SettingsExists(settingsName))
+                throw new SettingsAlreadyExistsException(settingsName);
+
+            File.Delete(MakeSettingsPath(settingsName));
         }
 
         /// <summary>

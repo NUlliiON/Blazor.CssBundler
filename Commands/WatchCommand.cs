@@ -6,6 +6,7 @@ using Blazor.CssBundler.Bundle;
 using Blazor.CssBundler.Bundle.App;
 using Blazor.CssBundler.Bundle.Component;
 using Blazor.CssBundler.Commands.Options;
+using Blazor.CssBundler.Exceptions;
 using Blazor.CssBundler.Interactive;
 using Blazor.CssBundler.Logging;
 using Blazor.CssBundler.Models;
@@ -40,16 +41,22 @@ namespace Blazor.CssBundler.Commands
                 var selection = new VerticalSettingsSelector(settingsList.Select(x => new SettingsSelectionItem(x.name, x.type)).ToArray());
                 SettingsSelectionItem selectedItem = selection.GetUserSelection();
 
-                settings = await SettingsManager.ReadAsync<BaseSettings>(selectedItem.Name);
+                if (await SettingsManager.SettingsExists(selectedItem.Name))
+                {
+                    settings = await SettingsManager.ReadAsync<BaseSettings>(selectedItem.Name);
+                }
             }
             else
             {
-                settings = await SettingsManager.ReadAsync<BaseSettings>(options.SettingsName);
+                if (await SettingsManager.SettingsExists(options.SettingsName))
+                {
+                    settings = await SettingsManager.ReadAsync<BaseSettings>(options.SettingsName);
+                }
             }
 
             if (settings == null)
             {
-                logger.Print("</crossmark/> Unable to load selected settings");
+                throw new SettingsNotFoundException(options.SettingsName);
             }
         
             if (settings.Type == SettingsType.Application)

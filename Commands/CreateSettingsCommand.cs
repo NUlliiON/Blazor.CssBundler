@@ -25,11 +25,19 @@ namespace Blazor.CssBundler.Commands
             await SettingsManager.CreateAsync(options.SettingsName);
             if (options.SettingsType == SettingsType.Application)
             {
-                await SettingsManager.SaveAsync(new ApplicationSettings(), options.SettingsName);
+                var settings = new ApplicationSettings() 
+                { 
+                    Name = options.SettingsName 
+                };
+                await SettingsManager.SaveAsync(settings);
             }
             else if (options.SettingsType == SettingsType.Component)
             {
-                await SettingsManager.SaveAsync(new ComponentSettings(), options.SettingsName);
+                var settings = new ComponentSettings()
+                {
+                    Name = options.SettingsName
+                };
+                await SettingsManager.SaveAsync(settings);
             }
             else
             {
