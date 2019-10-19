@@ -8,14 +8,14 @@ using Blazor.CssBundler.Models;
 
 namespace Blazor.CssBundler.Interactive
 {
-    abstract class BaseSettingsChanger<T> where T : BaseSettings, new()
+    class SettingsChanger<T> where T : BaseSettings, new()
     {
         protected int StartLeftPosition;
         protected int StartTopPosition;
         protected int CurrentPositionInProperty;
         protected PropertySelectionItem[] PropertyItems;
 
-        public BaseSettingsChanger()
+        public SettingsChanger()
         {
             StartLeftPosition = Console.CursorLeft;
             StartTopPosition = Console.CursorTop;
@@ -233,7 +233,7 @@ namespace Blazor.CssBundler.Interactive
             return cki;
         }
 
-        public static implicit operator BaseSettingsChanger<T>(ApplicationSettingsChanger v)
+        public static implicit operator SettingsChanger<T>(ApplicationSettingsChanger v)
         {
             throw new NotImplementedException();
         }
