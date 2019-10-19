@@ -1,6 +1,7 @@
 ﻿using Blazor.CssBundler.Exceptions;
 using Blazor.CssBundler.Models.Settings;
 using Blazor.CssBundler.Readers;
+using Blazor.CssBundler.Writers;
 using JsonSubTypes;
 using Newtonsoft.Json;
 using System;
@@ -17,6 +18,7 @@ namespace Blazor.CssBundler.Settings
         private static readonly string _rootSettingsDir = Path.Combine(Environment.CurrentDirectory, "settings");
         private static readonly string _settingsFileExtension = "json";
         private static readonly IReader _reader = new Readers.JsonReader();
+        private static readonly IWriter _writer = new Writers.JsonWriter();
 
         public static async Task ChangeSettingsNameAsync(string oldName, string newName)
         {
@@ -28,11 +30,8 @@ namespace Blazor.CssBundler.Settings
 
             string oldSettingsPath = MakeSettingsPath(oldName);
             string newSettingsPath = MakeSettingsPath(newName);
-
             File.Move(oldSettingsPath, newSettingsPath);
-
-            string json = JsonConvert.SerializeObject(settings, Formatting.Indented);
-            await File.WriteAllTextAsync(newSettingsPath, json);
+            await _writer.WriteAsync(newSettingsPath, settings);
         }
 
         /// <summary>
@@ -49,8 +48,7 @@ namespace Blazor.CssBundler.Settings
                 throw new SettingsNotFoundException(settings.Name);
 
             string settingsPath = MakeSettingsPath(settings.Name);
-            string json = JsonConvert.SerializeObject(settings, Formatting.Indented);
-            await File.WriteAllTextAsync(settingsPath, json);
+            await _writer.WriteAsync(settingsPath, settings);
         }
 
         /// <summary>
