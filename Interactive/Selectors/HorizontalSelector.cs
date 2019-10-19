@@ -1,17 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
-namespace Blazor.CssBundler.Interactive
+namespace Blazor.CssBundler.Interactive.Selectors
 {
-    class VerticalSettingsSelector : BaseSelector<SettingsSelectionItem>
+    class HorizontalSelector<T> : BaseSelector<T> 
+        where T: SettingsSelectionItem
     {
-        public VerticalSettingsSelector(SettingsSelectionItem[] selectionItems)
+        public HorizontalSelector(T[] selectionItems)
             : base(selectionItems)
         {
             selectionItems[0].Selected = true;
-            NextItemKey = ConsoleKey.DownArrow;
-            PrevItemKey = ConsoleKey.UpArrow;
+            NextItemKey = ConsoleKey.RightArrow;
+            PrevItemKey = ConsoleKey.LeftArrow;
         }
 
         protected override void DrawSelections()
@@ -19,20 +21,22 @@ namespace Blazor.CssBundler.Interactive
             Console.SetCursorPosition(startLeftPos, startTopPos);
             for (int i = 0; i < selectionItems.Length; i++)
             {
-                SettingsSelectionItem item = selectionItems[i];
-                if (selectionItems[i].Selected)
+                T item = selectionItems[i];
+                if (item.Selected)
                 {
                     Console.ForegroundColor = ConsoleColor.Black;
                     Console.BackgroundColor = ConsoleColor.Green;
-                    Console.WriteLine(" " + item.Name + " - " + item.Type + " ");
+                    Console.Write(" " + item.Name + " ");
                     Console.ResetColor();
+                    Console.Write(" ");
                 }
                 else
                 {
                     Console.ForegroundColor = ConsoleColor.White;
                     Console.BackgroundColor = ConsoleColor.DarkGray;
-                    Console.WriteLine(" " + item.Name + " - " + item.Type + " ");
+                    Console.Write(" " + item.Name + " ");
                     Console.ResetColor();
+                    Console.Write(" ");
                 }
             }
         }

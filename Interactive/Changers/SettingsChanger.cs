@@ -6,7 +6,7 @@ using System.Text;
 using System.Reflection;
 using Blazor.CssBundler.Models;
 
-namespace Blazor.CssBundler.Interactive
+namespace Blazor.CssBundler.Interactive.Changers
 {
     class SettingsChanger<T> where T : BaseSettings, new()
     {

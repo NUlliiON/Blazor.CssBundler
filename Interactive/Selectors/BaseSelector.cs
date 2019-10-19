@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Blazor.CssBundler.Interactive
+namespace Blazor.CssBundler.Interactive.Selectors
 {
     abstract class BaseSelector<T> where T: SelectionItem
     {
