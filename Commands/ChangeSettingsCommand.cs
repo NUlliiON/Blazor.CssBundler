@@ -53,16 +53,15 @@ namespace Blazor.CssBundler.Commands
                     throw new SettingsNotFoundException(options.SettingsName);
                 }
 
-
                 BaseSettings newSettings = null;
                 if (oldSettings.Type == SettingsType.Application)
                 {
-                    var settingsChanger = new ApplicationSettingsChanger();
+                    var settingsChanger = new SettingsChanger<ApplicationSettings>();
                     newSettings = settingsChanger.Change((ApplicationSettings)oldSettings);
                 }
                 else if (oldSettings.Type == SettingsType.Component)
                 {
-                    var settingsChanger = new ComponentSettingsChanger();
+                    var settingsChanger = new SettingsChanger<ComponentSettings>();
                     newSettings = settingsChanger.Change((ComponentSettings)oldSettings);
                 }
 

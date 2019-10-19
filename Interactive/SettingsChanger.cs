@@ -65,17 +65,16 @@ namespace Blazor.CssBundler.Interactive
             return settings;
         }
 
-
         protected virtual void DrawProperties(params PropertySelectionItem[] propItems)
         {
             foreach (var propItem in propItems)
             {
-                Console.SetCursorPosition(0, StartTopPosition + propItem.Position - 1);
+                Console.SetCursorPosition(0, StartTopPosition + propItem.LinePosition - 1);
                 int longestPropName = PropertyItems.Max(x => x.Name.Length);
 
                 int propNameLength = propItem.Name.Length;
                 int residue = longestPropName - propNameLength;
-                ClearCurrentConsoleLine();
+                InteractiveHelper.ClearCurrentConsoleLine();
                 if (propItem.Selected)
                 {
                     Console.ResetColor();
@@ -91,7 +90,7 @@ namespace Blazor.CssBundler.Interactive
                     Console.ResetColor();
                     Console.Write(propItem.Name + new string(' ', residue) + " > " + propItem.Value + "\n");
                 }
-                Console.SetCursorPosition(propItem.NameWithPaddingLength + CurrentPositionInProperty, StartTopPosition + propItem.Position - 1);
+                Console.SetCursorPosition(propItem.NameWithPaddingLength + CurrentPositionInProperty, StartTopPosition + propItem.LinePosition - 1);
             }
         }
 
@@ -103,139 +102,179 @@ namespace Blazor.CssBundler.Interactive
             bool changingFinished = false;
             while (!changingFinished)
             {
-                ConsoleKeyInfo pressedKey = ReadKeyWithoutMoving();
+                ConsoleKeyInfo pressedKey = InteractiveHelper.ReadKeyWithoutMoving();
+                bool altPressed = (pressedKey.Modifiers & ConsoleModifiers.Alt) != 0;
+                bool controlPressed = (pressedKey.Modifiers & ConsoleModifiers.Control) != 0;
+                bool shiftPressed = (pressedKey.Modifiers & ConsoleModifiers.Shift) != 0;
+
                 if (pressedKey.Key == ConsoleKey.Enter)
                 {
                     changingFinished = true;
                 }
                 else if (pressedKey.Key == ConsoleKey.UpArrow)
                 {
-                    CurrentPositionInProperty = 0;
-                    for (int i = 0; i < PropertyItems.Length; i++)
-                    {
-                        if (i != 0)
-                        {
-                            if (PropertyItems[i].Selected)
-                            {
-                                PropertyItems[i].Selected = false; // unselect current item
-                                PropertyItems[i - 1].Selected = true; // select up item
-                                DrawProperties(PropertyItems[i]); // redraw unselected item
-                                DrawProperties(PropertyItems[i - 1]); // redraw selected item
-                                break;
-                            }
-                        }
-                    }
+                    MoveUp();
                 }
                 else if (pressedKey.Key == ConsoleKey.DownArrow)
                 {
-                    CurrentPositionInProperty = 0;
-                    for (int i = 0; i < PropertyItems.Length; i++)
-                    {
-                        if (i != PropertyItems.Length - 1)
-                        {
-                            if (PropertyItems[i].Selected)
-                            {
-                                PropertyItems[i].Selected = false; // unselect current item
-                                PropertyItems[i + 1].Selected = true; // select down item
-                                DrawProperties(PropertyItems[i]); // redraw unselected item
-                                DrawProperties(PropertyItems[i + 1]); // redraw selected item
-                                break;
-                            }
-                        }
-                    }
+                    MoveDown();
                 }
                 else if (pressedKey.Key == ConsoleKey.LeftArrow)
                 {
-                    if (CurrentPositionInProperty > 0)
-                    {
-                        PropertySelectionItem selectedPropItem = PropertyItems.Where(x => x.Selected).FirstOrDefault();
-                        int stepCount = 5;
-                        bool controlPressed = (pressedKey.Modifiers & ConsoleModifiers.Control) != 0;
-
-                        if (controlPressed)
-                        {
-                            if (CurrentPositionInProperty >= stepCount)
-                            {
-                                CurrentPositionInProperty -= stepCount;
-                            }
-                        }
-                        else
-                        {
-                            CurrentPositionInProperty--;
-                        }
-                        DrawProperties(selectedPropItem);
-                    }
+                    MoveLeft(controlPressed);
                 }
                 else if (pressedKey.Key == ConsoleKey.RightArrow)
                 {
-                    PropertySelectionItem selectedPropItem = PropertyItems.Where(x => x.Selected).FirstOrDefault();
-                    if (CurrentPositionInProperty < selectedPropItem.Value.Length)
-                    {
-                        int stepCount = 5;
-                        bool controlPressed = (pressedKey.Modifiers & ConsoleModifiers.Control) != 0;
-
-                        if (controlPressed)
-                        {
-                            if (CurrentPositionInProperty + stepCount <= selectedPropItem.Value.Length)
-                            {
-                                CurrentPositionInProperty += stepCount;
-                            }
-                        }
-                        else
-                        {
-                            CurrentPositionInProperty++;
-                        }
-                        DrawProperties(selectedPropItem);
-                    }
+                    MoveRight(controlPressed);
                 }
-                else if (pressedKey.Key == ConsoleKey.Z && (pressedKey.Modifiers & ConsoleModifiers.Control) != 0)
+                else if (pressedKey.Key == ConsoleKey.Z && controlPressed)
                 {
 
                 }
                 else if (pressedKey.Key == ConsoleKey.Backspace)
                 {
-                    if (CurrentPositionInProperty > 0)
-                    {
-                        CurrentPositionInProperty--;
-                        PropertySelectionItem selectedPropItem = PropertyItems.Where(x => x.Selected).FirstOrDefault();
-                       selectedPropItem.Value = selectedPropItem.Value.Remove(CurrentPositionInProperty, 1);
-                        DrawProperties(selectedPropItem);
-                    }
+                    EraseChar();
                 }
                 else
                 {
-                    PropertySelectionItem selectedPropItem = PropertyItems.Where(x => x.Selected).FirstOrDefault();
-                    selectedPropItem.Value = selectedPropItem.Value.Insert(CurrentPositionInProperty, pressedKey.KeyChar.ToString());
-                    CurrentPositionInProperty++;
-                    DrawProperties(selectedPropItem);
+                    WriteChar(pressedKey.KeyChar);
                 }
             }
 
             return Map(PropertyItems);
         }
 
-        protected void ClearCurrentConsoleLine()
+        //private bool PressedModifier(ConsoleModifiers modifier) => pressedKey.Modifiers & ConsoleModifiers.Control != 0;
+
+        private void MoveLeft(bool controlPressed)
         {
-            int curLeft = Console.CursorLeft;
-            int curTop = Console.CursorTop;
-            Console.SetCursorPosition(0, curTop);
-            Console.Write(new string(' ', Console.WindowWidth));
-            Console.SetCursorPosition(curLeft, curTop);
+            if (CurrentPositionInProperty > 0)
+            {
+                PropertySelectionItem selectedPropItem = PropertyItems.Where(x => x.Selected).FirstOrDefault();
+                int stepCount = 5;
+
+                if (controlPressed)
+                {
+                    if (CurrentPositionInProperty >= stepCount)
+                    {
+                        CurrentPositionInProperty -= stepCount;
+                    }
+                    else
+                    {
+                        CurrentPositionInProperty -= CurrentPositionInProperty;
+                    }
+                }
+                else
+                {
+                    CurrentPositionInProperty--;
+                }
+                DrawProperties(selectedPropItem);
+            }
         }
 
-        protected ConsoleKeyInfo ReadKeyWithoutMoving()
+        private void MoveRight(bool controlPressed)
         {
-            int curLeft = Console.CursorLeft;
-            int curTop = Console.CursorTop;
+            PropertySelectionItem selectedPropItem = PropertyItems.Where(x => x.Selected).FirstOrDefault();
+            if (CurrentPositionInProperty < selectedPropItem.Value.Length)
+            {
+                int stepCount = 5;
 
-            ConsoleKeyInfo cki = Console.ReadKey();
-            Console.SetCursorPosition(curLeft, curTop);
-            return cki;
+                if (controlPressed)
+                {
+                    int maxStepCount = selectedPropItem.Value.Length - CurrentPositionInProperty;
+                    if (CurrentPositionInProperty + stepCount <= selectedPropItem.Value.Length)
+                    {
+                        CurrentPositionInProperty += stepCount;
+                    }
+                    else
+                    {
+                        CurrentPositionInProperty += maxStepCount;
+                    }
+                }
+                else
+                {
+                    CurrentPositionInProperty++;
+                }
+                DrawProperties(selectedPropItem);
+            }
         }
 
-        public static implicit operator SettingsChanger<T>(ApplicationSettingsChanger v)
+        private void MoveUp()
         {
-            throw new NotImplementedException();
+            for (int i = 0; i < PropertyItems.Length; i++)
+            {
+                if (i != 0)
+                {
+                    if (PropertyItems[i].Selected)
+                    {
+                        PropertyItems[i].Selected = false; // unselect current item
+                        PropertyItems[i].CaretPosition = CurrentPositionInProperty; // saving current caret position
+
+                        PropertyItems[i - 1].Selected = true; // select up item
+                        CurrentPositionInProperty = PropertyItems[i - 1].CaretPosition; // get caret position
+
+                        DrawProperties(PropertyItems[i]); // redraw unselected item
+                        DrawProperties(PropertyItems[i - 1]); // redraw selected item
+                        break;
+                    }
+                }
+            }
+        }
+
+        private void MoveDown()
+        {
+            for (int i = 0; i < PropertyItems.Length; i++)
+            {
+                if (i != PropertyItems.Length - 1)
+                {
+                    if (PropertyItems[i].Selected)
+                    {
+                        PropertyItems[i].Selected = false; // unselect current item
+                        PropertyItems[i].CaretPosition = CurrentPositionInProperty; // saving current caret position
+
+                        PropertyItems[i + 1].Selected = true; // select down item
+                        CurrentPositionInProperty = PropertyItems[i + 1].CaretPosition; // get caret position
+
+                        DrawProperties(PropertyItems[i]); // redraw unselected item
+                        DrawProperties(PropertyItems[i + 1]); // redraw selected item
+                        break;
+                    }
+                }
+            }
+        }
+
+        private void WriteChar(char chr)
+        {
+            PropertySelectionItem selectedPropItem = PropertyItems.Where(x => x.Selected).FirstOrDefault();
+            selectedPropItem.Value = selectedPropItem.Value.Insert(CurrentPositionInProperty, chr.ToString());
+            CurrentPositionInProperty++;
+            DrawProperties(selectedPropItem);
+        }
+
+        private void EraseChar()
+        {
+            if (CurrentPositionInProperty > 0)
+            {
+                CurrentPositionInProperty--;
+                PropertySelectionItem selectedPropItem = PropertyItems.Where(x => x.Selected).FirstOrDefault();
+                selectedPropItem.Value = selectedPropItem.Value.Remove(CurrentPositionInProperty, 1);
+                DrawProperties(selectedPropItem);
+            }
+        }
+
+        private void CopyText()
+        {
+
+        }
+
+        private void PasteText()
+        {
+
+        }
+
+        private void UndoText()
+        {
+
         }
     }
 }

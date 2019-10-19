@@ -28,12 +28,16 @@ namespace Blazor.CssBundler.Interactive
         {
             DrawSelections();
 
-            ConsoleKeyInfo cki = new ConsoleKeyInfo();
-            while (cki != null && cki.Key != ConsoleKey.Enter)
+            bool selected = false;
+            while (!selected)
             {
-                cki = ReadKeyWithoutMoving();
+                ConsoleKeyInfo pressedKey = InteractiveHelper.ReadKeyWithoutMoving();
                 bool selectionChanged = false;
-                if (cki.Key == PrevItemKey)
+                if (pressedKey.Key == ConsoleKey.Enter)
+                {
+                    selected = true;
+                }
+                if (pressedKey.Key == PrevItemKey)
                 {
                     for (int i = 0; i < selectionItems.Length; i++)
                     {
@@ -49,7 +53,7 @@ namespace Blazor.CssBundler.Interactive
                         }
                     }
                 }
-                else if (cki.Key == NextItemKey)
+                else if (pressedKey.Key == NextItemKey)
                 {
                     for (int i = 0; i < selectionItems.Length; i++)
                     {
@@ -71,15 +75,6 @@ namespace Blazor.CssBundler.Interactive
                 }
             }
             return selectionItems.Where(x => x.Selected).FirstOrDefault();
-        }
-
-        private ConsoleKeyInfo ReadKeyWithoutMoving()
-        {
-            int curLeft = Console.CursorLeft;
-            int curTop = Console.CursorTop;
-            ConsoleKeyInfo cki = Console.ReadKey();
-            Console.SetCursorPosition(curLeft, curTop);
-            return cki;
         }
     }
 }
