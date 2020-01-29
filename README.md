@@ -21,7 +21,7 @@ This tool is recommended to be used together with a component that allows you to
 
 ## Todo
 
- - Beta release 0.9
+ - Beta release
  - Interactive project switching system for subsequent project assembly
  - Wiki
  - API
